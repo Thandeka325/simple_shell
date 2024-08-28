@@ -1,101 +1,157 @@
 #include "shell.h"
 
-static ssize_t fill_buffer(char *buffer,size_t *buffer_size,
-		FILE *stream);
-static ssize_t extract_line(char **lineptr, size_t *n,
-		char *buffer, size_t *buffer_pos, size_t buffer_size);
 
 /**
- * custom_getline - Custom implementation of getline.
- * @lineptr: Pointer to the buffer where the line will be stored
- * @n: Pointer to the size of he buffer
- * @stream: Input stream (usually stdin)
+ * input_buffer - buffers chained commands
+ * @info: Parameter struct
+ * @buf: Pointer address of buffer
+ * @len: Pointer address of length variable
  *
- * Return: The number of characters read, or -1 on failure
+ * Return: Bytes read
  */
-ssize_t custom_getline(char **lineptr, size_t *n, FILE *stream)
+ssize_t input_buffer(info_t *info, char **buf, size_t *len)
 {
-	static char buffer[BUFFER_SIZE];
-	static size_t buffer_pos, buffer_size;
-	ssize_t line_len = 0;
+	ssize_t r = 0;
+	ssize_t len_p = 0;
 
-	if (!lineptr || !n || !stream)
-		return (-1);
-	if (*lineptr == NULL)
+	if (!*len)
 	{
-		*n = BUFFER_SIZE;
-		*lineptr = malloc(*n);
-		if (*lineptr == NULL)
-			return (-1);
+		free(*buffer);
+		*buffer = NULL;
+		signal(SIGINT, sigintHandler);
+	#if USE_GETLINE
+			r = getline(buffer, &len_p, stdin);
+	#else
+			r = _getline(info, buffer, &len_p);
+	#endif
+			if (r > 0)
+			{
+				if ((*buffer)[r - 1] == '\n')
+				{
+					(*buffer)[r - 1] = '\0';
+					r--;
+				}
+				info->linecount_flag = 1;
+				remove_comments(*buffer);
+				build_history_list(info, *buffer, info->histcount++);
+				{
+					*len = r;
+					info->cmd_buffer = buffer;
+				}}}
+	return (r);
+}
+
+/**
+ * get_input - Gets a line minus the newline
+ * @info: Parameter struct
+ *
+ * Return: Bytes read
+ */
+ssize_t get_input(info_t *info)
+{
+	static char *buffer;
+	static size_t i, j, len;
+	size_t r = 0;
+	char **buffer_p = &(info->arg), *p;
+
+	_putchar(BUFFER_FLUSH);
+	r = input_buffer(info, &buffer, &len);
+	if (r == -1)
+		return (-1);
+	if (len)
+	{
+		j = i;
+		p = buffer + i;
+
+		check_chain(info, buffer, &j, i, len);
+		while (j < len)
+		{
+			if (is_chain(info, buffer, &j))
+				break;
+			j++;
+		}
+		i = j + 1;
+		if (i >= len)
+		{
+			i = len = 0;
+			info->cmd_buffer_type = CMD_NORM;
+		}
+		*buffer_p = p;
+		return (_strlen(p));
 	}
-	while (1)
-	{
-		if (buffer_pos >= buffer_size)
-		{
-			line_len = fill_buffer(buffer, &buffer_size, stream);
-			if (line_len == -1)
-				return (-1);
-			buffer_pos = 0;
-		}
-		line_len = extract_line(lineptr, n, buffer, &buffer_pos, buffer_size);
-		if (line_len != 0)
-			return (line_len); }
+	*buffer_p = buffer;
+	return (r);
 }
-
 /**
- * fill_buffer - Fills the buffer with data from the input stream.
- * @buffer: The buffer to be filled
- * @buffer_size: Pointer to the size of the data in the buffer
- * @stream: Input stream (usually stdin)
+ * read_buffer - Reads the buffer
+ * @info: Parameter struct
+ * @buffer: The buffer
+ * @i: The size
  *
- * Return: 0 on success, or -1 on failure
+ * Return: r
  */
-static ssize_t fill_buffer(char *buffer, size_t *buffer_size,
-		FILE *stream)
+ssize_t read_buffer(info_t *info, char *buffer, size_t *i)
 {
-	*buffer_size = read(fileno(stream), buffer, BUFFER_SIZE);
+	ssize_t r = 0;
 
-	if (*buffer_size == 0)
-		return (-1);
-	else if (*buffer_size == (size_t)-1)
-		return (-1);
-	return (0);
+	if (*i)
+		return (0);
+	r = read(info->readfd, buffer, READ_BUFFER_SIZE);
+	if (r >= 0)
+		*i = r;
+	return (r);
 }
-
 /**
- * extract_line - Ectracts a line from the buffer
- * @lineptr: Pointer to the buffer where line will be stored
- * @n: Pointer to the size of the buffer
- * @buffer: The buffer to extract the line from
- * @buffer_pos: Pointer to the current position in the buffer
- * @buffer_size: The siize of data in the buffer
+ * _getline - Gets the next line of the input from STDIN
+ * @info: Parameter struct
+ * @ptr: Pointer to address buffer, preallocated or NULL
+ * @length: Size of preallocated ptr buffer if not NULL
  *
- * Return: The number oof characters read, or 0 if more data is needed
+ * Return: s
  */
-static ssize_t extract_line(char **lineptr, size_t *n, char *buffer,
-		size_t *buffer_pos, size_t buffer_size)
+int _getline(info_t *info, char **ptr, size_t *length)
 {
-	size_t line_len = 0;
-	char *new_line;
+	static char buffer[READ_BUFFER_SIZE];
+	static size_t i, len;
+	size_t k;
+	ssize_t r = 0, s = 0;
+	char *p = NULL, *new_p = NULL, *c;
 
-	while (*buffer_pos < buffer_size)
-	{
-		if (line_len >= *n - 1)
-		{
-			*n *= 2;
-			new_line = realloc(*lineptr, *n);
-			if (!new_line)
-				return (-1);
-			*lineptr = new_line;
-		}
-		(*lineptr)[line_len++] = buffer[(*buffer_pos)++];
+	p = *ptr;
+	if (p && length)
+		s = *length;
+	if (i == len)
+		i = len = 0;
+	r = read_buffer(info, buffer, &len);
+	if (r == -1 || (r == 0 && len == 0))
+		return (-1);
+	c = _strchr(buffer + i, '\n');
+	k = c ? 1 + (unsigned int)(c - buffer) : len;
+	new_p = _realloc(p, s, s ? s + k : k + 1);
+	if (!new_p)
+		return (p ? free(p), -1 : -1);
+	if (s)
+		_strncat(new_p, buffer + i, k - i);
+	else
+		_strncpy(new_p, buffer + i, k - i + 1);
+	s += k - i;
+	i = k;
+	p = new_p;
 
-		if ((*lineptr)[line_len - 1] == '\n')
-		{
-			(*lineptr)[line_len] = '\0';
-			return (line_len);
-		}
-	}
-	return (0);
+	if (length)
+		*length = s;
+	*ptr = p;
+	return (s);
 }
-
+/**
+ * sigintHandler - Blocks ctrl-c
+ * @sig_num: The signal number
+ *
+ * Return: Void
+ */
+void sigintHandler(__attribute__((unused))int sig_num)
+{
+	_puts("\n");
+	_puts("$");
+	_putchar(BUFFER_FLUSH);
+}
