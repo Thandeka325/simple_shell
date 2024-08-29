@@ -1,13 +1,13 @@
 #include "shell.h"
 
 /**
- * _exit - exits the shell
+ * _ownexit - exits the shell
  * @info: Structure containing potential arguments.
  *	Used to maintain constant function prototype
  * Return: Exit with a given exit status
  *	0 if info.argv[0] != "exit"
  */
-int _exit(info_t *info)
+int _ownexit(info_t *info)
 {
 	int exit_check;
 
@@ -28,13 +28,13 @@ int _exit(info_t *info)
 	return (-2);
 }
 /**
- * _cd - Changes the current directory of the process
+ * _owncd - Changes the current directory of the process
  * @info: Structure containing potential arguments.
  *	Used to maintain constant function prototype
  *
  * Return: Always 0
  */
-int _cd(info_t *info)
+int _owncd(info_t *info)
 {
 	char *s, *dir, buffer[1024];
 	int chdir_ret;
@@ -67,13 +67,13 @@ int _cd(info_t *info)
 	return (0);
 }
 /**
- * _help - Changes the current directory of the process
+ * _ownhelp - Changes the current directory of the process
  * @info: Structure containing poteintial arguments
  *	Used to maintain constant function prototype.
  *
  * Return: Always 0
  */
-int _help(info_t *info)
+int _ownhelp(info_t *info)
 {
 	char **arg_array;
 
