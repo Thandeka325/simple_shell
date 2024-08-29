@@ -46,10 +46,8 @@ int _owncd(info_t *info)
 	{
 		dir = _getenv(info, "HOME=");
 		if (!dir)
-			chdir_ret =
-				chdir((dir = _getenv(info, "PWD=")) ? dir : "/");
-		else
-			chdir_ret = chdir(dir); }
+			dir = _getenv(info, "PWD=") ? _getenv(info, "PWD=") : "/";
+		chdir_ret = chdir(dir); }
 	else if (_strcmp(info->argv[1], "-") == 0)
 	{
 		if (!_getenv(info, "OLDPWD="))
@@ -58,8 +56,15 @@ int _owncd(info_t *info)
 			_putchar('\n');
 			return (1); }
 		_puts(_getenv(info, "OLDPWD=")), _putchar('\n');
-		chdir_ret =
-			chdir((dir = _getenv(info, "OLDPWD=")) ? dir : "/"); }
+		dir = _getenv(info, "OLDPWD=") ? _getenv(info, "OLDPWD=") : "/";
+		chdir_ret = chdir(dir); }
+	else
+	{
+		chdir_ret = chdir(info->argv[1]); }
+	if (chdir_ret == -1)
+	{
+		print_error(info, "cant't cd to ");
+		_eputs(info->argv[1]), _eputchar('\n'); }
 	else
 	{
 		_setenv(info, "OLDPWD", _getenv(info, "PWD="));

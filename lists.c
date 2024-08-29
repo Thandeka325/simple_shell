@@ -38,7 +38,7 @@ list_t *add_node(list_t **head, const char *str, int num)
  * @str: str field of node
  * @num: Node index used by history
  *
- * Reurn: Size of the list
+ * Return: Size of the list
  */
 list_t *add_node_end(list_t **head, const char *str, int num)
 {
@@ -51,7 +51,7 @@ list_t *add_node_end(list_t **head, const char *str, int num)
 	new_node = malloc(sizeof(list_t));
 	if (!new_node)
 		return (NULL);
-	_memset((void *)new_node, 0, sizeof(list));
+	_memset((void *)new_node, 0, sizeof(list_t));
 	new_node->num = num;
 	if (str)
 	{

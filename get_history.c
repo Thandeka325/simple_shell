@@ -40,7 +40,7 @@ int write_history(info_t *info)
 	free(filename);
 	if (fd == -1)
 		return (-1);
-	for (node = info->history; node; = node->next)
+	for (node = info->history; node; node = node->next)
 	{
 		_putsfd(node->str, fd);
 		_putfd('\n', fd);
@@ -130,7 +130,7 @@ int renumber_history(info_t *info)
 	while (node)
 	{
 		node->num = i++;
-		node = node->next
+		node = node->next;
 	}
 	return (info->histcount = i);
 }

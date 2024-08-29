@@ -42,7 +42,7 @@ void print_error(info_t *info, char *estr)
 	_eputs(": ");
 	_eputs(info->argv[0]);
 	_eputs(": ");
-	eputs(estr);
+	_eputs(estr);
 }
 /**
  * print_d - Function prints a decimal number
@@ -53,7 +53,7 @@ void print_error(info_t *info, char *estr)
  */
 int print_d(int input, int fd)
 {
-	int (*_putchar_char) = _putchar;
+	int (*__putchar)(char) = _putchar;
 	int i, count = 0;
 	unsigned int _abs_, current;
 
@@ -95,7 +95,7 @@ char *convert_number(long int num, int base, int flags)
 	char *ptr;
 	unsigned long n = num;
 
-	if (!(flags & CONVERRT_UNSIGNED) && num < 0)
+	if (!(flags & CONVERT_UNSIGNED) && num < 0)
 	{
 		n = -num;
 		sign = '-';

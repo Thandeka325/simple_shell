@@ -50,14 +50,14 @@ int hsh(info_t *info, char **av)
  *	1 if builtin found but not successfull,
  *	-2 if builtin signal exit()
  */
-inf find_builtin(info_t *info)
+int find_builtin(info_t *info)
 {
 	int i, built_in_ret = -1;
 	builtin_table builtintbl[] = {
 		{"exit", _ownexit},
 		{"env", _ownenv},
 		{"help", _ownhelp},
-		{"history", _ownhistory},
+		{"history", _history},
 		{"setenv", _ownsetenv},
 		{"cd", _owncd},
 		{"alias", _alias},
@@ -93,7 +93,7 @@ void find_cmd(info_t *info)
 	for (i = 0, k = 0; info->arg[i]; i++)
 		if (!is_delim(info->arg[i], "\t\n"))
 			k++;
-	if (!K)
+	if (!k)
 		return;
 	path = find_path(info, _getenv(info, "PATH="), info->argv[0]);
 	if (path)
@@ -119,7 +119,7 @@ void find_cmd(info_t *info)
  */
 void fork_cmd(info_t *info)
 {
-       	pid_t child_pid;
+	pid_t child_pid;
 
 	child_pid = fork();
 	if (child_pid == -1)
