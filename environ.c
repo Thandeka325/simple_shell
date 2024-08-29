@@ -1,13 +1,13 @@
 #include "shell.h"
 
 /**
- * _env - prints the current environment
+ * _myenv - prints the current environment
  * @info: Structure containing potential arguments.
  *	Used to maintain constant function prototype
  *
  * Return: Always 0
  */
-int _env(info_t *info)
+int _myenv(info_t *info)
 {
 	print_list_str(info->env);
 	return (0);
@@ -27,21 +27,21 @@ char *_getenv(info_t *info, const char *name)
 
 	while (node)
 	{
-		p = _starts_with(node->str, name);
+		p = starts_with(node->str, name);
 		if (p && *p)
 			return (p);
 		node = node->next; }
 	return (NULL);
 }
 /**
- * _ownsetenv - Initialize a new environment variable,
+ * _mysetenv - Initialize a new environment variable,
  *	or modify an existing one
  * @info: Structure containing potential arguments.
  *	Used to maintain constant function prototype
  *
  * Return: Always 0
  */
-int _ownsetenv(info_t *info)
+int _mysetenv(info_t *info)
 {
 	if (info->argc != 3)
 	{
@@ -52,12 +52,12 @@ int _ownsetenv(info_t *info)
 	return (1);
 }
 /**
- * _ownunsetenv - Remove an environment variable
+ * _myunsetenv - Remove an environment variable
  * @info: Structure containing potential arguments.
  *	Used to maintain constant function prototype
  * Return: Always 0
  */
-int _ownunsetenv(info_t *info)
+int _myunsetenv(info_t *info)
 {
 	int i;
 

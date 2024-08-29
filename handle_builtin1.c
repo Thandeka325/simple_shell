@@ -1,20 +1,20 @@
 #include "shell.h"
 
 /**
- * _ownexit - exits the shell
+ * _myexit - exits the shell
  * @info: Structure containing potential arguments.
  *	Used to maintain constant function prototype
  * Return: Exit with a given exit status
  *	0 if info.argv[0] != "exit"
  */
-int _ownexit(info_t *info)
+int _myexit(info_t *info)
 {
-	int exit_check;
+	int exitcheck;
 
 	if (info->argv[1])
 	{
-		exit_check = _erratoi(info->argv[1]);
-		if (exit_check == -1)
+		exitcheck = _erratoi(info->argv[1]);
+		if (exitcheck == -1)
 		{
 			info->status = 2;
 			print_error(info, "Illegal number: ");
@@ -28,13 +28,13 @@ int _ownexit(info_t *info)
 	return (-2);
 }
 /**
- * _owncd - Changes the current directory of the process
+ * _mycd - Changes the current directory of the process
  * @info: Structure containing potential arguments.
  *	Used to maintain constant function prototype
  *
  * Return: Always 0
  */
-int _owncd(info_t *info)
+int _mycd(info_t *info)
 {
 	char *s, *dir, buffer[1024];
 	int chdir_ret;
@@ -72,13 +72,13 @@ int _owncd(info_t *info)
 	return (0);
 }
 /**
- * _ownhelp - Changes the current directory of the process
+ * _myhelp - Changes the current directory of the process
  * @info: Structure containing poteintial arguments
  *	Used to maintain constant function prototype.
  *
  * Return: Always 0
  */
-int _ownhelp(info_t *info)
+int _myhelp(info_t *info)
 {
 	char **arg_array;
 
