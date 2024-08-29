@@ -1,18 +1,17 @@
 #include "shell.h"
 
-
 /**
- * input_buffer - buffers chained commands
+ * input_buffer - Buffers chained commands
  * @info: Parameter struct
- * @buf: Pointer address of buffer
- * @len: Pointer address of length variable
+ * @buffer: Address of buffer
+ * @len: Address of len var
  *
  * Return: Bytes read
  */
-ssize_t input_buffer(info_t *info, char **buf, size_t *len)
+ssize_t input_buffer(info_t *info, char **buffer, size_t *len)
 {
 	ssize_t r = 0;
-	ssize_t len_p = 0;
+	size_t len_p = 0;
 
 	if (!*len)
 	{
@@ -37,12 +36,14 @@ ssize_t input_buffer(info_t *info, char **buf, size_t *len)
 				{
 					*len = r;
 					info->cmd_buffer = buffer;
-				}}}
+				}
+			}
+	}
 	return (r);
 }
 
 /**
- * get_input - Gets a line minus the newline
+ * get_input - gets a line minus the newline
  * @info: Parameter struct
  *
  * Return: Bytes read
@@ -51,7 +52,7 @@ ssize_t get_input(info_t *info)
 {
 	static char *buffer;
 	static size_t i, j, len;
-	size_t r = 0;
+	ssize_t r = 0;
 	char **buffer_p = &(info->arg), *p;
 
 	_putchar(BUFFER_FLUSH);
@@ -82,11 +83,12 @@ ssize_t get_input(info_t *info)
 	*buffer_p = buffer;
 	return (r);
 }
+
 /**
- * read_buffer - Reads the buffer
+ * read_buffer - Reads a buffer
  * @info: Parameter struct
- * @buffer: The buffer
- * @i: The size
+ * @buffer: The buffer to be read
+ * @i: size
  *
  * Return: r
  */
@@ -101,10 +103,11 @@ ssize_t read_buffer(info_t *info, char *buffer, size_t *i)
 		*i = r;
 	return (r);
 }
+
 /**
- * _getline - Gets the next line of the input from STDIN
+ * _getline - Gets the next line of input from STDIN
  * @info: Parameter struct
- * @ptr: Pointer to address buffer, preallocated or NULL
+ * @ptr: Address of pointer to buffer, preallocated or NULL
  * @length: Size of preallocated ptr buffer if not NULL
  *
  * Return: s
@@ -122,6 +125,7 @@ int _getline(info_t *info, char **ptr, size_t *length)
 		s = *length;
 	if (i == len)
 		i = len = 0;
+
 	r = read_buffer(info, buffer, &len);
 	if (r == -1 || (r == 0 && len == 0))
 		return (-1);
@@ -143,15 +147,16 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	*ptr = p;
 	return (s);
 }
+
 /**
  * sigintHandler - Blocks ctrl-c
  * @sig_num: The signal number
  *
- * Return: Void
+ * Return: void
  */
 void sigintHandler(__attribute__((unused))int sig_num)
 {
 	_puts("\n");
-	_puts("$");
+	_puts("$ ");
 	_putchar(BUFFER_FLUSH);
 }
