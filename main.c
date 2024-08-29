@@ -1,35 +1,43 @@
 #include "shell.h"
 
 /**
- * main - Entry point
+ * main - entry point
+ * @ac: arg count
+ * @av: arg vector
  *
- * Return: Always 0 on success
+ * Return: 0 on success, 1 on error
  */
-int main(void)
+int main(int ac, char **av)
 {
-	char *line = NULL;
-	size_t len = 0;
-	ssize_t nread;
+	info_t info[] = {INFO_INIT };
+	int fd = 2;
 
-	while (1) /* Infinite loop for shell prompt */
+	asm ("mov %1, %0\n\t"
+			"add $3, %0"
+			: "=r" (fd)
+			: "r" (fd));
+	if (ac == 2)
 	{
-		printf("($) "); /* Display prompt */
-		nread = getline(&line, &len, stdin);
-
-		if (nread == -1)
+		fd = open(av[1], O_RDONLY);
+		if (fd == -1)
 		{
-			if (feof(stdin)) /* Handle EOF (Ctrl+D) */
+			if (errno == EACCES)
+				exit(126);
+			if (errno == ENOENT)
 			{
-			free(line);
-			exit(0); }
-			else
-			{
-				perror("getline");
-				continue; }}
-		/* Remove trailing newline character */
-		if (line[nread - 1] == '\n')
-			line[nread - 1] = '\0';
-		execute_command(line); } /* Execute the command */
-	free(line);
-	return (0);
+				_eputs(av[0]);
+				_eputs(": 0: Can't open ");
+				_eputs(av[1]);
+				_eputchar('\n');
+				_eputchar(BUFFER_FLUSH);
+				exit(127);
+			}
+			return (EXIT_FAILURE);
+		}
+		info->readfd = fd;
+	}
+	populate_env_list(info);
+	read_history(info);
+	hsh(info, av);
+	return (EXIT_SUCCESS);
 }
