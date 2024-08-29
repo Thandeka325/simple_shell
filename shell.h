@@ -137,7 +137,7 @@ char **strtow2(char *, char);
 char **strtow(char *, char *);
 void *_realloc(void *, unsigned int, unsigned int);
 void ffree(char **);
-char *_memset(char *, char *);
+char *_memset(char *, char, unsigned int);
 int bfree(void **);
 int _atoi(char *);
 int _isalpha(int);
