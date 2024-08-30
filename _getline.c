@@ -145,6 +145,8 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	if (length)
 		*length = s;
 	*ptr = p;
+	if (i >= len)
+		i = len = 0;
 	return (s);
 }
 
