@@ -147,6 +147,8 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	*ptr = p;
 	if (i >= len)
 		i = len = 0;
+	while (s > 0 && (p[s - 1] == ' ' || p[s - 1] == '\t'))
+		p[--s] = '\0';
 	return (s);
 }
 
