@@ -1,0 +1,30 @@
+
+.TH SHELL 1 "August 30, 2024" "alx-low-level" "project 0x16"
+"1.0" "C - simple_shell - man page"
+
+.SH NAME
+.B simple_shell \- Simple UNIX command interpreter made in c
+
+.SH SYNOPSIS
+$ /hsh [options] [file]
+
+.SH DESCRIPTION
+simple_shell is a command language interpreter that executes commands read from a standard input. The shell can be run in an interavtive or none interactive environment. Once the shell has been ran it will display a promt \"($) "\ and the user can type any simple command.
+
+.SH OPTIONS
+.B simple_shell
+command options will be typed once the main command to start the shell has been executed
+
+.SH EXAMPLE
+
+./hsh (Opens the shell promt)
+/bin/ls
+
+ls -l /tmp
+
+.SH BUGS
+No known bugs.
+
+
+.SH AUTHOR
+Thandeka Mavundla, Caroline Udokpoh
